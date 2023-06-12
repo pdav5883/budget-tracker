@@ -37,3 +37,11 @@ Scan: description contains
 - Lambda pulls transactions
 - Attempts to categorize based on rules, otherwise sets category to "None", always checked=False, sets month based on date
 - Writes new transactions into DB
+
+## AWS
+- API gateway budget-tracker
+	- add
+	- edit
+	- delete
+	- sync-amex
+	- query
