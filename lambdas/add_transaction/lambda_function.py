@@ -1,6 +1,9 @@
 import boto3
+import json
 import datetime
-import common
+import budget_tracker_common as common
+
+ddb = boto3.client("dynamodb")
 
 """
 Transaction model
@@ -15,23 +18,26 @@ Transaction model
 
 """
 
-def test_local(local_dir, lat, lon, time_utc, span_hours=24):
+def bulk_add_local(fname):
     """
-    Runs lambda_handler using path as a stand-in for bucket
+    Assumes file at fname is json with list of transactions
     """
-    event = {"localTestDir": local_dir,
-             "queryStringParameters": {"lat": lat,
-                                       "lon": lon,
-                                       "time_utc": time_utc,
-                                       "span_hours": span_hours
-                                      }
-            }
+    with open(fname, "r") as fptr:
+        tlist = json.load(fptr)
 
-    res = lambda_handler(event, None)
-    print(res)
+    print("Attempting to add {} transactions".format(len(tlist)))
+
+    success = 0
+    failure = 0
+
+    for t in tlist:
+        if 
 
 
 def add_transaction_ddb(transaction):
+    """
+    Return True if transaction is added to table
+    """
     if month not in transaction:
         d = datetime.date.fromisoformat(transaction["date"])
         transaction["month"] = d.strftime("%b") + " " + d.strftime("%y")
@@ -40,6 +46,17 @@ def add_transaction_ddb(transaction):
     if checked not in transaction:
         transaction["checked"] = False
 
+    ite = common.transaction_to_ddb_item(transaction)
+    
+    try:
+        res = ddb.put_item(TableName=common.TABLE_NAME,
+                           Item=ite,
+                           ConditionExpression="attribute_not_exists(id)")
+    except client.exceptions.ConditionalCheckFailedException as e:
+        print("Add failed: id already exists {}".format(transaction["id"]))
+        return False
+
+    return True
 
 
  
