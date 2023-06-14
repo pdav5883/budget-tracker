@@ -26,6 +26,8 @@ def transaction_to_ddb_item(transaction):
             ite[k] = {"N": str(v)}
         elif type(v) is str:
             ite[k] = {"S": v}
+        elif type(v) is bool:
+            ite[k] = {"BOOL": v}
         else:
             raise TypeError("Key {}, Value {} has type {}".format(k, v, type(v)))
 

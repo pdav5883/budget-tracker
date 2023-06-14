@@ -1,9 +1,12 @@
 import boto3
+import sys
 import json
 import datetime
 import budget_tracker_common as common
 
 ddb = boto3.client("dynamodb")
+
+REQUIRED_FIELDS = ("id", "date", "account", "description", "amount")
 
 """
 Transaction model
@@ -18,32 +21,40 @@ Transaction model
 
 """
 
-def bulk_add_local(fname):
-    """
-    Assumes file at fname is json with list of transactions
-    """
-    with open(fname, "r") as fptr:
-        tlist = json.load(fptr)
 
-    print("Attempting to add {} transactions".format(len(tlist)))
-
+def bulk_add_ddb(transactions):
+    """
+    Add multiple transactions at once
+    """
     success = 0
     failure = 0
 
-    for t in tlist:
-        if 
+    for t in transactions:
+        if add_transaction_ddb(t):
+            success += 1
+        else:
+            failure += 1
+
+    print("Transactions added: {} success, {} failure".format(success, failure))
 
 
 def add_transaction_ddb(transaction):
     """
     Return True if transaction is added to table
+
+    Transaction must have all REQUIRED_FIELDS
     """
-    if month not in transaction:
+    for rf in REQUIRED_FIELDS:
+        if rf not in transaction:
+            print("Add failed: transaction does not have field {}".format(rf))
+            return False
+    
+    if "month" not in transaction:
         d = datetime.date.fromisoformat(transaction["date"])
         transaction["month"] = d.strftime("%b") + " " + d.strftime("%y")
-    if category not in transaction:
+    if "category" not in transaction:
         transaction["category"] = "None"
-    if checked not in transaction:
+    if "checked" not in transaction:
         transaction["checked"] = False
 
     ite = common.transaction_to_ddb_item(transaction)
@@ -52,45 +63,27 @@ def add_transaction_ddb(transaction):
         res = ddb.put_item(TableName=common.TABLE_NAME,
                            Item=ite,
                            ConditionExpression="attribute_not_exists(id)")
-    except client.exceptions.ConditionalCheckFailedException as e:
+    except ddb.exceptions.ConditionalCheckFailedException as e:
         print("Add failed: id already exists {}".format(transaction["id"]))
         return False
 
     return True
 
 
- 
 def lambda_handler(event, context):
     """
-    For GET request, parameters are in event['queryStringParameters']
-
-    {"lat": lat_degrees, "lon": lon_degrees, "time_utc": YYYY-MM-DD HH:MM:SS string, "span_hours": hours to look ahead}
-
-    Returns:
-    list of dicts {"name": str, "start/stop/peak_utc": str, "start/stop/peak_az": float, "start/stop/peak_el": float}
+    POST request, list of transactions in event['body']
     """
-    if "localTestDir" in event:
-        local_dir = event["localTestDir"]
-    else:
-        local_dir = None
+    transactions = json.loads(event["body"])
+    bulk_add_ddb(transactions)
+   
 
-    lat = float(event["queryStringParameters"]["lat"])
-    lon = float(event["queryStringParameters"]["lon"])
-    time_utc = event["queryStringParameters"]["time_utc"]
-    span_hours = float(event["queryStringParameters"]["span_hours"])
+# Running locally assumes arg1 is path to json with list of transactions
+if __name__ == "__main__":
+    print("Adding transactions at {}".format(sys.argv[1]))
 
-    print("Get visible for lat: {}, lon:{} from time: {} for {} hours".format(lat, lon, time_utc, span_hours))
+    with open(sys.argv[1], "r") as fptr:
+        transactions = json.load(fptr)
 
-    lla = np.array([lat, lon, 0])
-    sats = read_satellite_data(local_dir)
-    ephem = load_ephemeris(local_dir)
-    sats_ecef, sunlit = propagate_ecef_sunlit(sats, time_utc, ephem)
-    sun_ecef = get_sun_direction_ecef(time_utc, ephem)
-    viz = visible_local(list(sats.keys()), sats_ecef, sun_ecef, sunlit, lla)
-
-    print("Found: {}".format(viz))
-
-    return viz
-
-
+    bulk_add_ddb(transactions)
 
