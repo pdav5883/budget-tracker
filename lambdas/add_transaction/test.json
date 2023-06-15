@@ -1,0 +1,26 @@
+[
+  {"id": "a001",
+   "date": "2023-01-01",
+   "account": "test_acct",
+   "description": "test 01",
+   "amount": 1.01},
+
+  {"id": "a002",
+   "date": "2023-02-01",
+   "account": "test_acct",
+   "description": "test 02",
+   "amount": 1.02},
+
+  {"id": "a003",
+   "date": "2023-03-01",
+   "account": "test_acct",
+   "description": "test 03",
+   "amount": 1.03},
+  
+   {"id": "a004",
+   "date": "2023-04-01",
+   "account": "test_acct",
+   "description": "test 04",
+   "category": "fun",
+   "amount": 1.04}
+]
