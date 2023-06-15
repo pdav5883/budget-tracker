@@ -28,6 +28,8 @@ def transaction_to_ddb_item(transaction):
             ite[k] = {"S": v}
         elif type(v) is bool:
             ite[k] = {"BOOL": v}
+        elif v == "amount": # in case transaction is JSON.stringify'd upstream
+            ite[k] = {"N": str(v)}
         else:
             raise TypeError("Key {}, Value {} has type {}".format(k, v, type(v)))
 
