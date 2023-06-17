@@ -45,3 +45,7 @@ Scan: description contains
 	- delete
 	- sync-amex
 	- query
+- API implementation:
+	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/edit/etc}
+	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request to /add
+	- API gateway authenticates user, if successful sends on to lambda
