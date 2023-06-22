@@ -40,12 +40,16 @@ Scan: description contains
 
 ## AWS
 - API gateway budget-tracker
-	- add
+	- add (POST) (BudgetAddTransaction lambda)
+	- query (GET) (BudgetQueryTransactions lambda)
 	- edit
 	- delete
-	- sync-amex
-	- query
 - API implementation:
-	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/edit/etc}
-	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request to /add
+	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/query/etc}
+	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request to endpoint
 	- API gateway authenticates user, if successful sends on to lambda
+- Sync implementation
+	- BudgetSyncPlaid lambda runs on schedule with CloudWatch event (can also run locally with json file)
+	- Publishes to budget-tracker-add-topic (max 10 transactions at a time)
+	- Triggers BudgetAddTransaction lambda
+	- Adds transactions to DynamoDB budget-tracker-transactions table

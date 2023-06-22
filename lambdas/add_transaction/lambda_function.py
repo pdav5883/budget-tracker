@@ -72,9 +72,20 @@ def add_transaction_ddb(transaction):
 
 def lambda_handler(event, context):
     """
-    POST request, list of transactions in event['body']
+    Can receive trigger from API gateway or SNS topic. Input is json list of transactions to add
+    - API POST request: parse event['body']
+    - SNS topic: parse event['Records'][i]['Sns']['Message']
     """
-    transactions = json.loads(event["body"])
+    if "body" in event:
+        transactions = json.loads(event["body"])
+    elif "Records" in event:
+        transactions = []
+        for msg in event["Records"]:
+            transactions.extend(json.loads(msg["Sns"]["Message"]))
+    else:
+        print("ERROR: unknown trigger event format")
+        print(event)
+
     bulk_add_ddb(transactions)
    
 
