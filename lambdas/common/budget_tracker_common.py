@@ -1,5 +1,6 @@
 # constants
 TABLE_NAME = "budget-tracker-transactions"
+INDEX_NAME = "month-category-index"
 
 
 def ddb_item_to_transaction(ite):
@@ -22,16 +23,27 @@ def transaction_to_ddb_item(transaction):
     ite = {}
 
     for k, v in transaction.items():
-        if type(v) in (float, int):
-            ite[k] = {"N": str(v)}
-        elif type(v) is str:
-            ite[k] = {"S": v}
-        elif type(v) is bool:
-            ite[k] = {"BOOL": v}
-        elif v == "amount": # in case transaction is JSON.stringify'd upstream
-            ite[k] = {"N": str(v)}
-        else:
-            raise TypeError("Key {}, Value {} has type {}".format(k, v, type(v)))
+        t = ddb_type(v)
+        val = v if t == "BOOL" else str(v) # bool is the only type not passed as a string in boto3
+        ite[k] = {ddb_type(v): val}
+        
+        return ite
 
-    return ite
+
+def ddb_type(value):
+    """
+    Return the boto3 ddb type required for add and query
+    """
+    if type(value) in (float, int):
+        return "N"
+    elif type(value) is str:
+        return "S"
+    elif type(value) is bool:
+        return "BOOL"
+    else: # in case numeric value has been JSON.stringify'd upstream
+        try:
+            float(value)
+            return "N"
+        except:
+            raise TypeError("Value {} has unrecognized type {}".format(value, type(value)))
 

@@ -1,6 +1,7 @@
 import boto3
 import sys
 import json
+import string
 import datetime
 import budget_tracker_common as common
 
@@ -20,69 +21,91 @@ Transaction model
 
 """
 
-"""
-def bulk_add_ddb(transactions):
+
+def get_transaction_by_id(id_str):
+    res = ddb.get_idem(TableName=common.TABLE_NAME, Key={"id": {"S": id_str}})
+
+    if "Item" in res:
+        return common.ddb_item_to_transaction(res["Item"])
+    else:
+        return None
+
+
+def query_transactions_month_category(month, category=None):
     """
-    Add multiple transactions at once
+    query on month-category-index global index
     """
-    success = 0
-    failure = 0
+    if category is None:
+        query_expr = "#M = :m"
+        attr_names = {"#M": "month"}
+        attr_values = {":m": {"S": month}}
+    else:
+        query_expr = "#M = :m AND #C = :c"
+        attr_names = {"#M": "month", "#C": "category"}
+        attr_values = {":m": {"S": month}, ":c": {"S": category}}
 
-    for t in transactions:
-        if add_transaction_ddb(t):
-            success += 1
-        else:
-            failure += 1
+    res = ddb.query(TableName=common.TABLE_NAME, IndexName=common.INDEX_NAME,
+                    KeyConditionExpression=query_expr,
+                    ExpressionAttributeNames=attr_names,
+                    ExpressionAttributeValues=attr_values)
 
-    print("Transactions added: {} success, {} failure".format(success, failure))
+    return [common.ddb_item_to_transaction(ite) for ite in res["Items"]]
 
 
-def add_transaction_ddb(transaction):
-    """
-    Return True if transaction is added to table
-
-    Transaction must have all REQUIRED_FIELDS
-    """
-    for rf in REQUIRED_FIELDS:
-        if rf not in transaction:
-            print("Add failed: transaction does not have field {}".format(rf))
-            return False
     
-    if "month" not in transaction:
-        d = datetime.date.fromisoformat(transaction["date"])
-        transaction["month"] = d.strftime("%b") + " " + d.strftime("%y")
-    if "category" not in transaction:
-        transaction["category"] = "None"
-    if "checked" not in transaction:
-        transaction["checked"] = False
-
-    ite = common.transaction_to_ddb_item(transaction)
-    
-    try:
-        res = ddb.put_item(TableName=common.TABLE_NAME,
-                           Item=ite,
-                           ConditionExpression="attribute_not_exists(id)")
-    except ddb.exceptions.ConditionalCheckFailedException as e:
-        print("Add failed: id already exists {}".format(transaction["id"]))
-        return False
-
-    return True
 """
+Won't work because there is not an index over everything, but might be useful in scan
+def query_transactions(attr_dict):
+   
+    attr_dict keys are attributes to query, values are equality values for attributes
+
+    attribute type is inferred by value
+
+   
+    letters = string.ascii_lowercase
+    i = 0
+
+    query_expr_list = []
+    attr_names = {}
+    attr_values = {}
+
+    for k, v in attr_dicts.items():
+        query_expr_list.append("#" + letters[i] + " = :" + letters[i+1])
+        attr_names["#" + letters[i]] = k
+        attr_values[":" + letters[i+1]] = {common.ddb_type(v): v}
+
+        i += 2
+
+    query_expr = " AND ".join(query_expr_list)
+
+    res = ddb.query(TableName=common.TABLE_NAME,
+"""
+
 
 def lambda_handler(event, context):
     """
-    POST request, list of transactions in event['body']
+    GET request, list of transactions in event['body']
     """
-    transactions = json.loads(event["body"])
-    bulk_add_ddb(transactions)
+    params = event["queryStringParameters"]
+    query_type = params["type"]
+    
+    if query_type == "id":
+        return get_transaction_by_id(params["id"])
+    elif query_type == "month-category":
+        month = params["month"]
+        category = params["category"] if "category" in params else None
+        return query_transaction_month_category(month, category)
    
 
-# Running locally assumes arg1 is path to json with list of transactions
+# Running locally assumes month-category query 
 if __name__ == "__main__":
-    print("Adding transactions at {}".format(sys.argv[1]))
+    month = sys.argv[1]
+    category = sys.argv[2] if len(sys.argv) > 2 else None
 
-    with open(sys.argv[1], "r") as fptr:
-        transactions = json.load(fptr)
+    t = query_transactions_month_category(month, category)
 
-    bulk_add_ddb(transactions)
+    print("Found {} transactions".format(len(t)))
+
+    for t_ in t:
+        print(t_)
 
