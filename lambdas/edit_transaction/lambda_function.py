@@ -66,8 +66,8 @@ def set_transactions_checked(id_list):
         res = ddb.update_item(TableName=common.TABLE_NAME,
                               Key={"id": {"S": id_str}},
                               UpdateExpression="set #a=:b",
-                              ExpressionAttributeName={"#a": "checked"},
-                              ExpressionAttributeValues={":b": True})
+                              ExpressionAttributeNames={"#a": "checked"},
+                              ExpressionAttributeValues={":b": {"BOOL": True}})
 
 
 def lambda_handler(event, context):
@@ -78,8 +78,8 @@ def lambda_handler(event, context):
     """
     params = event["queryStringParameters"]
 
-    if "id_list" in params: # this currently won't work
-        set_transactions_checked(params["id_list"])
+    if "id_list" in params:
+        set_transactions_checked(event["multiValueQueryStringParameters"]["id_list"])
     else:
         id_str = params.pop("id")
         edit_transaction(id_str, params)
