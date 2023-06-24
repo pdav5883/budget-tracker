@@ -1,7 +1,23 @@
 # budget-tracker
 - Strip down quickstart frontend to take user to link page and then show access_token after successful login.
-- Store access_token in AWS, which lambda can look at to build transaction query
-- Store transactions in S3
+- Store access_token in AWS, which lambda can look at do plaid sync
+- Store transactions in DynamoDB
+
+## TODO
+- Function in sync_transactions to pull Amex from plaid
+- Deploy sync_transactions to BudgetSyncTransactions
+- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
+- Update sync_transactions to ingest Chase CSVs locally
+- Update sync_transactions rules for category assignment
+- Store budget value in DB
+- Frontend
+	- landing page shows X month spending vs budget for category (default to current month, groceries)
+	- history page with past X  months spending vs budget for category (default 6 months, groceries)
+	- click into budget, see all transactions in category, month combo
+	- see all transactions by
+		- month 
+		- category
+		- date range
 
 ## Data Model
 - id 
@@ -33,21 +49,17 @@ Scan: description contains
 - Change category
 - Split transaction into multiple
 
-## Workflow
-- Lambda pulls transactions
-- Attempts to categorize based on rules, otherwise sets category to "None", always checked=False, sets month based on date
-- Writes new transactions into DB
-
-## AWS
+## AWS Backend
 - API gateway budget-tracker
 	- add (POST) (BudgetAddTransaction lambda)
 	- query (GET) (BudgetQueryTransactions lambda)
-	- edit (GET)
-	- delete
+	- edit (PUT) (BudgetEditTransaction lambda)
+	- delete (DELETE) (BudgetDeleteTransaction lambda)
 - API implementation:
-	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/query/etc}
-	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request to endpoint
+	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/query/edit/delete}
+	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request
 	- API gateway authenticates user, if successful sends on to lambda
+	- All API resources use lambda proxy integration
 - Sync implementation
 	- BudgetSyncPlaid lambda runs on schedule with CloudWatch event (can also run locally with json file)
 	- Publishes to budget-tracker-add-topic (max 10 transactions at a time)
