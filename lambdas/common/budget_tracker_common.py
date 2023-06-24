@@ -34,10 +34,10 @@ def ddb_type(value):
     """
     Return the boto3 ddb type required for add and query
     """
-    if is_float(value):
-        return "N"
-    elif is_bool(value):
+    if is_bool(value):
         return "BOOL"
+    elif is_float(value):
+        return "N"
     else:
         return "S"
 
@@ -52,8 +52,8 @@ def is_float(value):
         return False
 
 
-true_values = (True, "True", "true", "T", "t", "1", 1)
-false_values = (False, "False", "false", "F", "f", "0", 0)
+true_values = (True, "True", "true", "T", "t")
+false_values = (False, "False", "false", "F", "f")
 
 def is_bool(value):
     if value in true_values or value in false_values:

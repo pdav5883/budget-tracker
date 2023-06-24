@@ -23,7 +23,7 @@ Transaction model
 
 
 def get_transaction_by_id(id_str):
-    res = ddb.get_idem(TableName=common.TABLE_NAME, Key={"id": {"S": id_str}})
+    res = ddb.get_item(TableName=common.TABLE_NAME, Key={"id": {"S": id_str}})
 
     if "Item" in res:
         return common.ddb_item_to_transaction(res["Item"])

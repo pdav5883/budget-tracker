@@ -35,7 +35,8 @@ def bulk_add_ddb(transactions):
         else:
             failure += 1
 
-    print("Transactions added: {} success, {} failure".format(success, failure))
+    msg = "Transactions added: {} success, {} failure".format(success, failure)
+    return msg
 
 
 def add_transaction_ddb(transaction):
@@ -77,16 +78,23 @@ def lambda_handler(event, context):
     - SNS topic: parse event['Records'][i]['Sns']['Message']
     """
     if "body" in event:
+        print("Adding from API trigger")
         transactions = json.loads(event["body"])
     elif "Records" in event:
+        print("Adding from SNS trigger")
         transactions = []
         for msg in event["Records"]:
             transactions.extend(json.loads(msg["Sns"]["Message"]))
     else:
         print("ERROR: unknown trigger event format")
+        print("Lambda Event:")
         print(event)
 
-    bulk_add_ddb(transactions)
+    print("Adding IDs:", [t["id"] for t in transactions])
+    msg = bulk_add_ddb(transactions)
+    
+    print(msg)
+    return {"statusCode": 200, "body": msg}
    
 
 # Running locally assumes arg1 is path to json with list of transactions
@@ -96,5 +104,5 @@ if __name__ == "__main__":
     with open(sys.argv[1], "r") as fptr:
         transactions = json.load(fptr)
 
-    bulk_add_ddb(transactions)
+    print(bulk_add_ddb(transactions))
 
