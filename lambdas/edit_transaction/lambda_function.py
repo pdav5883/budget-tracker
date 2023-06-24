@@ -22,103 +22,71 @@ Transaction model
 """
 
 
-def edit_transaction(id_str, **kwargs):
-    res = ddb.get_idem(TableName=common.TABLE_NAME, Key={"id": {"S": id_str}})
-
-    if "Item" in res:
-        return common.ddb_item_to_transaction(res["Item"])
-    else:
-        return None
-
-
-def query_transactions_month_category(month, category=None):
+def edit_transaction(id_str, attr_dict):
     """
-    query on month-category-index global index
+    Example attr_dict = {"category": "Groceries", "amount": "5.1", "checked": True}
     """
-    if category is None:
-        query_expr = "#M = :m"
-        attr_names = {"#M": "month"}
-        attr_values = {":m": {"S": month}}
-    else:
-        query_expr = "#M = :m AND #C = :c"
-        attr_names = {"#M": "month", "#C": "category"}
-        attr_values = {":m": {"S": month}, ":c": {"S": category}}
+    print("Updating id {}".format(id_str))
+    print("Setting {}".format(attr_dict))
 
-    res = ddb.query(TableName=common.TABLE_NAME, IndexName=common.INDEX_NAME,
-                    KeyConditionExpression=query_expr,
-                    ExpressionAttributeNames=attr_names,
-                    ExpressionAttributeValues=attr_values)
-
-    return [common.ddb_item_to_transaction(ite) for ite in res["Items"]]
-
-
-    
-"""
-Won't work because there is not an index over everything, but might be useful in scan
-def query_transactions(attr_dict):
-   
-    attr_dict keys are attributes to query, values are equality values for attributes
-
-    attribute type is inferred by value
-
-   
-    letters = string.ascii_lowercase
+    alpha = string.ascii_lowercase
     i = 0
 
-    query_expr_list = []
-    attr_names = {}
-    attr_values = {}
+    expr = []
+    names = {}
+    values = {}
 
-    for k, v in attr_dicts.items():
-        query_expr_list.append("#" + letters[i] + " = :" + letters[i+1])
-        attr_names["#" + letters[i]] = k
-        attr_values[":" + letters[i+1]] = {common.ddb_type(v): v}
+    attr_dict_ddb = common.transaction_to_ddb_item(attr_dict)
+
+    for name, value in attr_dict_ddb.items():
+        nk = "#" + alpha[i]
+        vk = ":" + alpha[i+1]
+
+        expr.append(nk + "=" + vk)
+        names[nk] = name
+        values[vk] = value
 
         i += 2
 
-    query_expr = " AND ".join(query_expr_list)
+    expr = "set " + ", ".join(expr)
 
-    res = ddb.query(TableName=common.TABLE_NAME,
-"""
+    res = ddb.update_item(TableName=common.TABLE_NAME,
+                          Key={"id": {"S": id_str}},
+                          UpdateExpression=expr,
+                          ExpressionAttributeNames=names,
+                          ExpressionAttributeValues=values)
+
+
+def set_transactions_checked(id_list):
+    """
+    All ids in list will set checked=True
+    """
+    print("Updating {} transactions to checked=True".format(len(id_list)))
+    for id_str in id_list:
+        res = ddb.update_item(TableName=common.TABLE_NAME,
+                              Key={"id": {"S": id_str}},
+                              UpdateExpression="set #a=:b",
+                              ExpressionAttributeName={"#a": "checked"},
+                              ExpressionAttributeValues={":b": True})
 
 
 def lambda_handler(event, context):
     """
-    GET request, list of transactions in event['body']
+    PUT request, params in event["queryStringParameters"]
 
-    Due to lambda proxy integration with REST API, must include specific response format
+    Only care about status code returned by API to client
     """
     params = event["queryStringParameters"]
-    query_type = params["type"]
-    
-    if query_type == "id":
-        status = 200
-        body = json.dumps(get_transaction_by_id(params["id"]))
-    elif query_type == "month-category":
-        month = params["month"]
-        category = params["category"] if "category" in params else None
-        status = 200
-        body = json.dumps(query_transactions_month_category(month, category))
+
+    if "id_list" in params: # this currently won't work
+        set_transactions_checked(params["id_list"])
     else:
-        status = 400
-        body = "Illegal query type {}".format(query_type)
+        id_str = params.pop("id")
+        edit_transaction(id_str, params)
 
-    resp = {"isBase64Encoded": False,
-            "statusCode": status,
-            "body": body}
-
-    return resp
+    return {"isBase64Encoded": False, "statusCode": 200}
    
 
 # Running locally assumes month-category query 
 if __name__ == "__main__":
-    month = sys.argv[1]
-    category = sys.argv[2] if len(sys.argv) > 2 else None
-
-    t = query_transactions_month_category(month, category)
-
-    print("Found {} transactions".format(len(t)))
-
-    for t_ in t:
-        print(t_)
-
+    print("Edit not implemented locally")

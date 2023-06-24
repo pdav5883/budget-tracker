@@ -24,26 +24,49 @@ def transaction_to_ddb_item(transaction):
 
     for k, v in transaction.items():
         t = ddb_type(v)
-        val = v if t == "BOOL" else str(v) # bool is the only type not passed as a string in boto3
-        ite[k] = {ddb_type(v): val}
+        val = to_bool(v) if t == "BOOL" else str(v) # bool is the only type not passed as a string in boto3
+        ite[k] = {t: val}
         
-        return ite
+    return ite
 
 
 def ddb_type(value):
     """
     Return the boto3 ddb type required for add and query
     """
-    if type(value) in (float, int):
+    if is_float(value):
         return "N"
-    elif type(value) is str:
-        return "S"
-    elif type(value) is bool:
+    elif is_bool(value):
         return "BOOL"
-    else: # in case numeric value has been JSON.stringify'd upstream
-        try:
-            float(value)
-            return "N"
-        except:
-            raise TypeError("Value {} has unrecognized type {}".format(value, type(value)))
+    else:
+        return "S"
+
+
+def is_float(value):
+    if type(value) in (float, int):
+        return True
+    try:
+        float(value)
+        return True
+    except:
+        return False
+
+
+true_values = (True, "True", "true", "T", "t", "1", 1)
+false_values = (False, "False", "false", "F", "f", "0", 0)
+
+def is_bool(value):
+    if value in true_values or value in false_values:
+        return True
+    else:
+        return False
+
+
+def to_bool(value):
+    if value in true_values:
+        return True
+    elif value in false_values:
+        return False
+    else:
+        raise NameError("name {} not boolean".format(value))
 
