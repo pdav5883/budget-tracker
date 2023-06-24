@@ -85,16 +85,29 @@ def query_transactions(attr_dict):
 def lambda_handler(event, context):
     """
     GET request, list of transactions in event['body']
+
+    Due to lambda proxy integration with REST API, must include specific response format
     """
     params = event["queryStringParameters"]
     query_type = params["type"]
     
     if query_type == "id":
-        return get_transaction_by_id(params["id"])
+        status = 200
+        body = json.dumps(get_transaction_by_id(params["id"]))
     elif query_type == "month-category":
         month = params["month"]
         category = params["category"] if "category" in params else None
-        return query_transaction_month_category(month, category)
+        status = 200
+        body = json.dumps(query_transactions_month_category(month, category))
+    else:
+        status = 400
+        body = "Illegal query type {}".format(query_type)
+
+    resp = {"isBase64Encoded": False,
+            "statusCode": status,
+            "body": body}
+
+    return resp
    
 
 # Running locally assumes month-category query 
