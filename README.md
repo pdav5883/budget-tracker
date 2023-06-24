@@ -42,7 +42,7 @@ Scan: description contains
 - API gateway budget-tracker
 	- add (POST) (BudgetAddTransaction lambda)
 	- query (GET) (BudgetQueryTransactions lambda)
-	- edit
+	- edit (GET)
 	- delete
 - API implementation:
 	- User pool in AWS Cognito is Authorizer to API Gateway {budget-tracker}/{stage}/{add/query/etc}
