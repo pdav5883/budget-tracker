@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>Scoreboard</title>
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- FONT -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <!-- <link href="/_tmp/fonts" rel="stylesheet" type="text/css"> -->
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles/normalize.css"> 
+  <link rel="stylesheet" href="/styles/skeleton.css">  
+  <link rel="stylesheet" href="/styles/custom.css">  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <!-- JQuery -->
+  <script src="/scripts/amazon-cognito-identity.min.js"></script>
+  <script src="/scripts/login.js"></script>
+  <script src="/scripts/menu.js"></script>
+</head>
+<body>
+  <h1>Login</h1>
+  <a href="/login.html">Login</a>
+  <a href="/index.html">Budget</a>
+  <a href="/transactions.html">Transactions</a>
+  <a href="/historical.html">Historical</a>
+  <label for="username">Username</label>
+  <input type="text" name="username" id="username">
+  <label for="password">Password</label>
+  <input type="password" name="password" id="password">
+  <button type="button" id="gobutton" onclick="submitLogin()">Go</button>
+  <p id="status"></p>
+</html>
