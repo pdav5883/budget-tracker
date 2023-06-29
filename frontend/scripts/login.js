@@ -1,6 +1,7 @@
 let pool_id = "us-east-1_nb47Kycit"
 let client_id = "t4rpjmebifvs8adt4ktqbg16u"
 
+
 function submitLogin() {
   var usn = document.getElementById("username").value
   var pwd = document.getElementById("password").value
@@ -26,12 +27,12 @@ function submitLogin() {
   var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
   cognitoUser.authenticateUser(authenticationDetails, {
 	onSuccess: function(result) {
-	  var idToken = result.getIdToken().getJwtToken();
-	  var refreshToken = result.getRefreshToken().getToken();
-	  // TODO: store
+	  localStorage.setItem("idtoken", result.getIdToken().getJwtToken());
+	  localStorage.setItem("refreshtoken", result.getRefreshToken().getToken());
+	  document.getElementById("statustext").innerHTML = "Success"
 	},
 	
 	onFailure: function(err) {
-		alert(err.message || JSON.stringify(err));
+	  document.getElementById("statustext").innerHTML = "Error"
 	},
 });}

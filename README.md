@@ -60,6 +60,8 @@ Scan: description contains
 	- User logs in to Cognito via SDK, gets tokens, sends idtoken with API request
 	- API gateway authenticates user, if successful sends on to lambda
 	- All API resources use lambda proxy integration
+		- For CORS, enable CORS for API resource OPTIONS, then add CORS headers to lambda response
+		- TODO: add authorization for OPTIONS method
 - Sync implementation
 	- BudgetSyncPlaid lambda runs on schedule with CloudWatch event (can also run locally with json file)
 	- Publishes to budget-tracker-add-topic (max 10 transactions at a time)
