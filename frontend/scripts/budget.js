@@ -1,6 +1,15 @@
 let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
 
-//window.onload = initPopulateForm
+let default_category = "Groceries"
+
+window.onload = fetchSingleBudgetDefault
+
+function fetchSingleBudgetDefault() {
+  document.getElementById("month").value = new Date().toLocaleString("en-us",{month:"short", year: "2-digit"})
+  document.getElementById("category").value = default_category
+
+  fetchSingleBudget()
+}
 
 
 function fetchSingleBudget() {
@@ -30,14 +39,19 @@ function fetchSingleBudget() {
     crossDomain: true,
 
     success: function(response) {
-      statustext.innerHTML = "Success!"
+      statustext.innerHTML = ""
       var total = 0
       response.forEach(tr => total += tr["amount"])
       spenttext.innerHTML = "$" + total.toFixed(2)
     },
 
-    error: function() {
-      statustext.innerHTML = "Error"
+    error: function(err) {
+      if (err.status == "401") {
+	statustext.innerHTML = "Invalid Login Credentials"
+      }
+      else {
+	statustext.innerHTML = "Error"
+      }
     }
   })
 
