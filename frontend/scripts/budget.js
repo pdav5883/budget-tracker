@@ -1,5 +1,4 @@
 let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
-
 let default_category = "Groceries"
 
 window.onload = fetchSingleBudgetDefault
@@ -47,7 +46,14 @@ function fetchSingleBudget() {
 
     error: function(err) {
       if (err.status == "401") {
-	statustext.innerHTML = "Invalid Login Credentials"
+	if (localStorage.getItem("refreshtoken") != null) {
+	  statustext.innerHTML = "Refreshing Login Credentials..."
+	  submitRefresh() // from login.js
+	  statustext.innerHTML += "Try Again"
+	}
+	else {
+	  statustext.innerHTML = "Error: Login Required"
+	}
       }
       else {
 	statustext.innerHTML = "Error"
