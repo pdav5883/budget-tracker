@@ -1,26 +1,24 @@
-let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
-let default_category = "Groceries"
+const api_query_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
+const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/edit"
+const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
+const api_delete_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/delete"
 
-window.onload = function() {
-  document.getElementById("spentvalue").onclick = function () {
-    var month = document.getElementById("month").value
-    var category = document.getElementById("category").value
-    window.location.href = "/transactions.html?month=" + month + "&category=" + category
+window.onload = fetchTransactionsIfRequested
+
+
+function fetchTransactionsIfRequested() {
+  const params = new URLSearchParams(window.location.search)
+
+  if (params.get("month") != null) {
+    document.getElementById("month").value = params.get("month")
+    document.getElementById("category").value = params.get("category")
+    fetchTransactions()
   }
-  fetchSingleBudgetDefault()
-}
-
-function fetchSingleBudgetDefault() {
-  document.getElementById("month").value = new Date().toLocaleString("en-us",{month:"short", year: "2-digit"})
-  document.getElementById("category").value = default_category
-
-  fetchSingleBudget()
 }
 
 
-function fetchSingleBudget() {
+function fetchTransactions() {
   var statustext = document.getElementById("statustext")
-  var spenttext = document.getElementById("spentvalue")
   var month = document.getElementById("month").value
   var category = document.getElementById("category").value
 
@@ -39,16 +37,13 @@ function fetchSingleBudget() {
 
   $.ajax({
     type: "GET",
-    url: api_url,
+    url: api_query_url,
     headers: authHeader,
     data: params,
     crossDomain: true,
 
     success: function(response) {
-      statustext.innerHTML = ""
-      var total = 0
-      response.forEach(tr => total += tr["amount"])
-      spenttext.innerHTML = "$" + total.toFixed(2)
+      loadTable(response)
     },
 
     error: function(err) {
@@ -67,5 +62,8 @@ function fetchSingleBudget() {
       }
     }
   })
+}
 
+function loadTable(data) {
+  document.getElementById("statustext").innerHTML = "TABLE LOADED"
 }
