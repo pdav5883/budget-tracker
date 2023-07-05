@@ -3,13 +3,13 @@ const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/pro
 const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
 const api_delete_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/delete"
 
-// db name, header name, visible
-const columns = [["id", "ID", false],
-                 ["date", "Date", true],
-  		 ["description", "Descr", true],
-  		 ["account", "Acct", true],
-  		 ["category", "Category", true],
-  		 ["amount", "Amount", true]]
+// db name, header name, visible, width -- first column is always ID, last col is changed flag
+const columns = [["id", "ID", false, 10],
+                 ["date", "Date", true, 12],
+  		 ["description", "Descr", true, 20],
+  		 ["account", "Acct", true, 10],
+  		 ["category", "Category", true, 10],
+  		 ["amount", "Amount", true, 6]]
 
 window.onload = fetchTransactionsIfRequested
 
@@ -78,6 +78,7 @@ function loadTable(data) {
   
   var row = document.createElement("tr")
   var cell = null
+  var content = null
   
   // headers
   for (const c of columns) {
@@ -105,13 +106,18 @@ function loadTable(data) {
 
     for (const c of columns) {
       cell = document.createElement("td")
-      cell.innerHTML = data[i][c[0]]
+      content = document.createElement("input")
+      content.setAttribute("type", "text")
+      content.setAttribute("size", c[3])
+      content.value = data[i][c[0]]
+      cell.appendChild(content)
       
       if (!c[2]) {
 	cell.setAttribute("style", "display:none")
       }
       row.appendChild(cell)
     }
+    
     // changed cell
     cell = document.createElement("td")
     cell.innerHTML = false
