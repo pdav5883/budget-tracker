@@ -3,6 +3,14 @@ const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/pro
 const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
 const api_delete_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/delete"
 
+// db name, header name, visible
+const columns = [["id", "ID", false],
+                 ["date", "Date", true],
+  		 ["description", "Descr", true],
+  		 ["account", "Acct", true],
+  		 ["category", "Category", true],
+  		 ["amount", "Amount", true]]
+
 window.onload = fetchTransactionsIfRequested
 
 
@@ -65,5 +73,51 @@ function fetchTransactions() {
 }
 
 function loadTable(data) {
-  document.getElementById("statustext").innerHTML = "TABLE LOADED"
+  var table = document.getElementById("transactionstable")
+  table.innerHTML = ""
+  
+  var row = document.createElement("tr")
+  var cell = null
+  
+  // headers
+  for (const c of columns) {
+    cell = document.createElement("th")
+    cell.innerHTML = c[1]
+
+    if (!c[2]) {
+      cell.setAttribute("style", "display:none")
+    }
+
+    row.appendChild(cell)
+  }
+
+  // changed column tracks whether a row has been updated by user
+  cell = document.createElement("th")
+  cell.innerHTML = "Changed"
+  cell.setAttribute("style", "display:none")
+  row.appendChild(cell)
+
+  table.appendChild(row)
+
+  // entries
+  for (var i = 0; i < data.length; i++) {
+    row = document.createElement("tr")
+
+    for (const c of columns) {
+      cell = document.createElement("td")
+      cell.innerHTML = data[i][c[0]]
+      
+      if (!c[2]) {
+	cell.setAttribute("style", "display:none")
+      }
+      row.appendChild(cell)
+    }
+    // changed cell
+    cell = document.createElement("td")
+    cell.innerHTML = false
+    cell.setAttribute("style", "display:none")
+    row.appendChild(cell)
+
+    table.appendChild(row)
+  }
 }
