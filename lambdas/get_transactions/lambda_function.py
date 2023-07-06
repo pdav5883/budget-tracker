@@ -105,9 +105,7 @@ def lambda_handler(event, context):
 
     resp = {"isBase64Encoded": False,
             "statusCode": status,
-            "headers": {"Access-Control-Allow-Headers": "Content-Type",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "GET"},
+            "headers": {"Access-Control-Allow-Origin": "*"},
             "body": body}
 
     return resp
