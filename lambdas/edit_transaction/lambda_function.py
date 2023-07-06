@@ -72,19 +72,29 @@ def set_transactions_checked(id_list):
 
 def lambda_handler(event, context):
     """
-    PUT request, params in event["queryStringParameters"]
+    PUT request, params in event["queryStringParameters"] sometimes (python requests),
+    event["body"] other times (jquery.ajax) -- so check both
 
     Only care about status code returned by API to client
     """
-    params = event["queryStringParameters"]
+    if event["queryStringParameters"] is not None:
+        params = event["queryStringParameters"]
+        
+        if id_list in params:
+            params["id_list"] = event["multiValueQueryStringParameters"]
+    else:
+        params = json.loads(event["body"])
 
     if "id_list" in params:
-        set_transactions_checked(event["multiValueQueryStringParameters"]["id_list"])
+        set_transactions_checked(params["id_list"])
     else:
         id_str = params.pop("id")
         edit_transaction(id_str, params)
 
-    return {"isBase64Encoded": False, "statusCode": 200}
+    return {"isBase64Encoded": False,
+            "statusCode": 200,
+            "headers": {"Access-Control-Allow-Origin": "*"}
+            }
    
 
 # Running locally assumes month-category query 
