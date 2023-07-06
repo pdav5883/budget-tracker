@@ -77,6 +77,8 @@ def lambda_handler(event, context):
 
     Only care about status code returned by API to client
     """
+    # TODO: eventually change so that request is always in body, and can contain
+    #       edits for multiple entries
     if event["queryStringParameters"] is not None:
         params = event["queryStringParameters"]
         
