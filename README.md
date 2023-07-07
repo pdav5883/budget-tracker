@@ -19,6 +19,7 @@
 		- category
 		- date range
 - Update edit transactions to edit multiple entries with single put request
+- Change transaction category to select from text input
 
 ## Data Model
 - id 
@@ -62,7 +63,7 @@ Scan: description contains
 	- API gateway authenticates user, if successful sends on to lambda
 	- All API resources use lambda proxy integration
 		- For CORS, enable CORS for API resource OPTIONS, then add CORS origin header to lambda response
-		- Add gateway response headers for 4XX and 5XX
+		- Add gateway response headers for 4XX and 5XX by adding method under Gateway Response
 		- TODO: add authorization for OPTIONS method
 - Sync implementation
 	- BudgetSyncPlaid lambda runs on schedule with CloudWatch event (can also run locally with json file)

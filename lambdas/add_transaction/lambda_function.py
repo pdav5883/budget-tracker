@@ -94,7 +94,10 @@ def lambda_handler(event, context):
     msg = bulk_add_ddb(transactions)
     
     print(msg)
-    return {"statusCode": 200, "body": msg}
+    return {"isBase64Encoded": False,
+            "statusCode": 200,
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "body": msg}
    
 
 # Running locally assumes arg1 is path to json with list of transactions
