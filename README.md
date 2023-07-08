@@ -1,16 +1,15 @@
 # budget-tracker
 
 ## TODO
-- Add budget entries and edit page
-- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
-- Beautify frontend
 - Deploy
+- Beautify frontend
+	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
 - Auto sync through plaid
 	- Function in sync_transactions to pull Amex from plaid
 	- Deploy sync_transactions to BudgetSyncTransactions
 	- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
 	- Take care of deleted transactions from plaid sync
-- Test account
+- Test login
 - Update sync_transactions to ingest Chase CSVs locally
 	- Update sync_transactions rules for category assignment
 - Allow sync_transactions from text/email
@@ -26,6 +25,8 @@
 
 
 ## Data Model
+Transactions and Target Values are stored in the same table
+### Transaction
 - id 
 - date
 - month
@@ -33,6 +34,10 @@
 - category
 - checked
 - description
+- amount
+
+### Target Value
+- id (target_{month}_{category} format)
 - amount
 
 PK: ID
@@ -59,6 +64,7 @@ Scan: description contains
 - Strip down plaid quickstart frontend to take user to link page and then show access_token after successful login.
 
 ## AWS Backend
+- Table is stored in DynamoDB budget-tracker-transactions
 - API gateway budget-tracker
 	- add (POST) (BudgetAddTransaction lambda)
 	- query (GET) (BudgetQueryTransactions lambda)

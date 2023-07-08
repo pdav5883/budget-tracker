@@ -2,9 +2,9 @@ let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query
 let default_category = "Groceries"
 
 window.onload = function() {
-  document.getElementById("spentvalue").onclick = function () {
-    var month = document.getElementById("month").value
-    var category = document.getElementById("category").value
+  document.getElementById("spentamount").onclick = function () {
+    const month = document.getElementById("month").value
+    const category = document.getElementById("category").value
     window.location.href = "/transactions.html?month=" + month + "&category=" + category
   }
   fetchSingleBudgetDefault()
@@ -20,9 +20,10 @@ function fetchSingleBudgetDefault() {
 
 function fetchSingleBudget() {
   var statustext = document.getElementById("statustext")
-  var spenttext = document.getElementById("spentvalue")
-  var month = document.getElementById("month").value
-  var category = document.getElementById("category").value
+  var spentAmount = document.getElementById("spentamount")
+  var targetAmount = document.getElementById("targetamount")
+  const month = document.getElementById("month").value
+  const category = document.getElementById("category").value
 
   if (month == "" || category == "") {
     statustext.innerHTML = "Error: must enter month and category"
@@ -48,11 +49,23 @@ function fetchSingleBudget() {
       statustext.innerHTML = ""
       var total = 0
       response.forEach(tr => total += tr["amount"])
-      spenttext.innerHTML = "$" + total.toFixed(2)
+      spentAmount.innerHTML = "$" + total.toFixed(2)
+
+      // from target.js, with callback to populate text
+      fetchTarget(function(tAmt) {
+	if (tAmt) {
+	  targetAmount.innerHTML = "$" + tAmt.toFixed(2)
+	}
+	else {
+	  targetAmount.innerHTML = "N/A"
+	}
+      })
     },
 
     error: function(err) {
       if (err.status == "401") {
+	spentAmount.innerHTML = ""
+	targetAmount.innerHTML = ""
 	if (localStorage.getItem("refreshtoken") != null) {
 	  statustext.innerHTML = "Refreshing Login Credentials..."
 	  submitRefresh() // from login.js
@@ -67,5 +80,4 @@ function fetchSingleBudget() {
       }
     }
   })
-
 }

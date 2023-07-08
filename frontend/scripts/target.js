@@ -11,13 +11,12 @@ const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod
 //
 // To edit/add target fetchTarget is run with saveTarget as a
 // callback. If fetchTarget gets a target value back in response,
-// then saveTarget(true) is run, which hits the edit api. If no
-// target value is fetched, then saveTarget(false) is run, which
-// hits add api.
+// then saveTarget is run. If saveTarget gets a null then it hits
+// add api, if it gets a value it hits edit api.
+
 
 function fetchTarget(callback) {
   var statustext = document.getElementById("statustext")
-  var amount = document.getElementById("amount")
   const month = document.getElementById("month").value
   const category = document.getElementById("category").value
 
@@ -43,11 +42,11 @@ function fetchTarget(callback) {
     success: function(response) {
       if (response != null) {
 	if (!callback) {
-	  amount.value = response["amount"]
+	  document.getElementById("amount").value = response["amount"]
 	  statustext.innerHTML = ""
 	}
 	else {
-	  callback(true)
+	  callback(response["amount"])
 	}
       }
       else {
@@ -55,7 +54,7 @@ function fetchTarget(callback) {
 	  statustext.innerHTML = "Month-Category Target does not exist yet"
 	}
 	else {
-	  callback(false)
+	  callback(null)
 	}
       }
     },
@@ -84,7 +83,7 @@ function makeTargetId(month, category) {
 }
 
 
-function saveTarget(targetExists) {
+function saveTarget(targetValue) {
   var statustext = document.getElementById("statustext")
   const amount = document.getElementById("amount").value
   const month = document.getElementById("month").value
@@ -99,7 +98,7 @@ function saveTarget(targetExists) {
   const targetId = makeTargetId(month, category)
 
   // call edit api
-  if (targetExists) {
+  if (targetValue) {
     $.ajax({
       type: "PUT",
       url: api_edit_url,
