@@ -3,8 +3,19 @@ const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/pro
 const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
 
 
-function fetchTarget() {
-  // Returns true if target already exists, false if not, null if error
+// Probably not the most elegant way, but ajax is async so can't
+// call fetchTarget from within saveTarget
+// 
+// To query target, fetchTarget runs without a callback, which
+// causes amount.value to be set on the page.
+//
+// To edit/add target fetchTarget is run with saveTarget as a
+// callback. If fetchTarget gets a target value back in response,
+// then saveTarget(true) is run, which hits the edit api. If no
+// target value is fetched, then saveTarget(false) is run, which
+// hits add api.
+
+function fetchTarget(callback) {
   var statustext = document.getElementById("statustext")
   var amount = document.getElementById("amount")
   const month = document.getElementById("month").value
@@ -15,12 +26,12 @@ function fetchTarget() {
     return
   }
 
-  var params = {
+  const params = {
     "type": "id",
     "id": makeTargetId(month, category)
   }
 
-  var authHeader = {"Authorization": localStorage.getItem("idtoken")}
+  const authHeader = {"Authorization": localStorage.getItem("idtoken")}
 
   $.ajax({
     type: "GET",
@@ -31,12 +42,21 @@ function fetchTarget() {
 
     success: function(response) {
       if (response != null) {
-	amount.value = response["amount"]
-	return true
+	if (!callback) {
+	  amount.value = response["amount"]
+	  statustext.innerHTML = ""
+	}
+	else {
+	  callback(true)
+	}
       }
       else {
-	statustext.innerHTML = "Month-Category Target does not exist yet"
-	return false
+	if (!callback) {
+	  statustext.innerHTML = "Month-Category Target does not exist yet"
+	}
+	else {
+	  callback(false)
+	}
       }
     },
 
@@ -64,7 +84,7 @@ function makeTargetId(month, category) {
 }
 
 
-function saveTarget() {
+function saveTarget(targetExists) {
   var statustext = document.getElementById("statustext")
   const amount = document.getElementById("amount").value
   const month = document.getElementById("month").value
@@ -72,13 +92,6 @@ function saveTarget() {
 
   if (month == "" || category == "" || amount == "") {
     statustext.innerHTML = "Error: must enter month, category, and amount"
-    return
-  }
-
-  const targetExists = fetchTarget()
-
-  if (targetExists == null) {
-    // error text was filled in fetchTaret()
     return
   }
 
@@ -107,7 +120,22 @@ function saveTarget() {
 
   // call new api
   else {
-    statustext.innerHTML = "Not Implemented"
+    $.ajax({
+      type: "POST",
+      url: api_add_url,
+      headers: authHeader,
+      data: JSON.stringify([{"id": targetId, "amount": amount, "isTarget": null}]),
+      crossDomain: true,
+      dataType: "text",  // must be text to ensure ajax parses no response from lambda
+
+      success: function(response) {
+	statustext.innerHTML = "Success: target added"
+      },
+
+      error: function(err) {
+	statustext.innerHTML = "Error"
+      }
+    })
   }
 }
 

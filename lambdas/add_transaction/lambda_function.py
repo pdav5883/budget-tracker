@@ -19,6 +19,10 @@ Transaction model
 - description
 - amount
 
+
+If transaction contains "isTarget" field, then assume it
+is a target value, and don't check fields during add
+
 """
 
 
@@ -30,7 +34,13 @@ def bulk_add_ddb(transactions):
     failure = 0
 
     for t in transactions:
-        if add_transaction_ddb(t):
+        if "isTarget" in t:
+            check_fields = False
+            t.pop("isTarget")
+        else:
+            check_fields = True
+
+        if add_transaction_ddb(t, check_fields):
             success += 1
         else:
             failure += 1
@@ -39,24 +49,25 @@ def bulk_add_ddb(transactions):
     return msg
 
 
-def add_transaction_ddb(transaction):
+def add_transaction_ddb(transaction, check_fields=True):
     """
     Return True if transaction is added to table
 
-    Transaction must have all REQUIRED_FIELDS
+    Transaction must have all REQUIRED_FIELDS if check_fields is True
     """
-    for rf in REQUIRED_FIELDS:
-        if rf not in transaction:
-            print("Add failed: transaction does not have field {}".format(rf))
-            return False
+    if check_fields:
+        for rf in REQUIRED_FIELDS:
+            if rf not in transaction:
+                print("Add failed: transaction does not have field {}".format(rf))
+                return False
     
-    if "month" not in transaction:
-        d = datetime.date.fromisoformat(transaction["date"])
-        transaction["month"] = d.strftime("%b") + " " + d.strftime("%y")
-    if "category" not in transaction:
-        transaction["category"] = "None"
-    if "checked" not in transaction:
-        transaction["checked"] = False
+        if "month" not in transaction:
+            d = datetime.date.fromisoformat(transaction["date"])
+            transaction["month"] = d.strftime("%b") + " " + d.strftime("%y")
+        if "category" not in transaction:
+            transaction["category"] = "None"
+        if "checked" not in transaction:
+            transaction["checked"] = False
 
     ite = common.transaction_to_ddb_item(transaction)
     
