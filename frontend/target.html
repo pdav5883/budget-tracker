@@ -3,7 +3,7 @@
 <head>
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Login</title>
+  <title>Budget</title>
   <!-- Mobile Specific Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- FONT -->
@@ -16,21 +16,26 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
   <script src="/scripts/amazon-cognito-identity.min.js"></script>
   <script src="/scripts/login.js"></script>
+  <script src="/scripts/target.js"></script>
   <script src="/scripts/menu.js"></script>
 </head>
 <body>
-  <h1>Login</h1>
+  <h1>Budget Target</h1>
   <a href="/login.html">Login</a>
-  <a href="/index.html">Budget</a>
+  <a href="/">Budget</a>
   <a href="/transactions.html">Transactions</a>
   <a href="/target.html">Target</a>
-  <label for="username">Username</label>
-  <input type="text" name="username" id="username">
-  <label for="password">Password</label>
-  <input type="password" name="password" id="password">
-  <button type="button" id="gobutton" onclick="submitLogin()">Go</button>
-  <button type="button" id="refreshbutton" onclick="submitRefresh()">Refresh</button>
+  <label for="month">Month</label>
+  <input type="text" name="month" id="month">
+  <label for="category">Category</label>
+  <input type="text" name="category" id="category">
+  <button type="button" id="gobutton" onclick="fetchTarget()">Go</button>
+  <label for="amount">Amount</label>
+  <input type="text" name="amount" id="amount">
+  <button type="button" id="savebutton" onclick="saveTarget()">Save</button>
   <p id="statustext"></p>
+</body>
 </html>
