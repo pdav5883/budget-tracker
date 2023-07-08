@@ -1,25 +1,29 @@
 # budget-tracker
-- Strip down quickstart frontend to take user to link page and then show access_token after successful login.
-- Store access_token in AWS, which lambda can look at do plaid sync
-- Store transactions in DynamoDB
 
 ## TODO
-- Function in sync_transactions to pull Amex from plaid
-- Deploy sync_transactions to BudgetSyncTransactions
-- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
+- Add budget entries and edit page
+- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
+- Beautify frontend
+- Deploy
+- Auto sync through plaid
+	- Function in sync_transactions to pull Amex from plaid
+	- Deploy sync_transactions to BudgetSyncTransactions
+	- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
+	- Take care of deleted transactions from plaid sync
+- Test account
 - Update sync_transactions to ingest Chase CSVs locally
-- Update sync_transactions rules for category assignment
-- Store budget value in DB
-- Frontend
-	- landing page shows X month spending vs budget for category (default to current month, groceries)
-	- history page with past X  months spending vs budget for category (default 6 months, groceries)
-	- click into budget, see all transactions in category, month combo
-	- see all transactions by
-		- month 
-		- category
-		- date range
-- Update edit transactions to edit multiple entries with single put request
-- Change transaction category to select from text input
+	- Update sync_transactions rules for category assignment
+- Allow sync_transactions from text/email
+- Usability Changes
+	- Update edit transactions to edit multiple entries with single put request
+	- Change transaction category to select from text input
+	- Add new filter option for date
+	- Add new filter option for just month
+	- Auto login page if no token
+	- Ensure auto refresh and retry if expired idtoken
+- Write up how to get plaid token info
+- Implement checked field in transaction, or remove
+
 
 ## Data Model
 - id 
@@ -50,6 +54,9 @@ Scan: description contains
 - Change month
 - Change category
 - Split transaction into multiple
+
+## plaid
+- Strip down plaid quickstart frontend to take user to link page and then show access_token after successful login.
 
 ## AWS Backend
 - API gateway budget-tracker
