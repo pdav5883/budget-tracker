@@ -30,6 +30,40 @@ $(document).ready(function() {
 var navmenu =
 '<ul class="navbar-list">' +
   '<li class="navbar-item"><a class="navbar-link" href="https://home.bearloves.rocks">Home</a></li>' +
-  '<li class="navbar-item"><a class="navbar-link" href="/">Scoreboard</a></li>' +
-  '<li class="navbar-item"><a class="navbar-link" href="/picks.html">Picks</a></li>' +
+  '<li class="navbar-item">' +
+    '<a class="navbar-link" href="#" data-popover="#pagesPopover">budget-tracker</a>' +
+    '<div id="pagesPopover" class="popover">' +
+      '<ul class="popover-list">' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/">Budget</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/transactions.html">Transactions</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/target.html">Target</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/login.html">Login</a>' +
+        '</li>' +
+      '</ul>' +
+    '</div>' +
+  '</li>' +
+  '<li class="navbar-item">' +
+    '<a class="navbar-link" href="#" data-popover="#aboutPopover">About</a>' +
+    '<div id="aboutPopover" class="popover">' +
+      '<ul class="popover-list">' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#">Overview</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#more">More</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="https://github.com/pdav5883/budget-tracker">Github</a>' +
+        '</li>' +
+      '</ul>' +
+    '</div>' +
+  '</li>' +
+
 '</ul>';

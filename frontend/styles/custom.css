@@ -25,6 +25,15 @@
   text-decoration: inherit; }
 
 
+/* Custom Menu */
+#pagesPopover {
+  left: 0%;
+}
+
+#aboutPopover {
+  left: -35%;
+}
+
 /* Tables
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .score-table td,th {
@@ -137,7 +146,7 @@ super {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: .2rem;
-    margin-right: 30px;
+    margin-right: 15px; /* custom for budget-tracker */
     text-decoration: none;
     line-height: 6.5rem;
     color: #222; }
@@ -155,7 +164,7 @@ super {
 
   /* Popover */
   .popover.open {
- display   display: block;
+    display: block;
   }
   .popover {
     display: none;
@@ -220,4 +229,10 @@ super {
   .popover-link:hover,
   .popover-item:first-child .popover-link:hover:after {
     border-bottom-color: #33C3F0; }
+}
+
+@media (min-width: 400px) {
+  .navbar-link {
+    margin-right: 30px;
+  }
 }

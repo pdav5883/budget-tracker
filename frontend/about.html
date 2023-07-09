@@ -3,7 +3,7 @@
 <head>
   <!-- Basic Page Needs -->
   <meta charset="utf-8">
-  <title>Login</title>
+  <title>Budget</title>
   <!-- Mobile Specific Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- FONT -->
@@ -19,6 +19,8 @@
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
   <script src="/scripts/amazon-cognito-identity.min.js"></script>
   <script src="/scripts/login.js"></script>
+  <script src="/scripts/target.js"></script>
+  <script src="/scripts/budget.js"></script>
   <script src="/scripts/menu.js"></script>
 </head>
 <body>
@@ -31,14 +33,10 @@
     </div>
   </nav>
   <div class="top container">
-    <h1>Login</h1>
-    <label for="username">Username</label>
-    <input type="text" name="username" id="username">
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password">
-    <button type="button" id="gobutton" onclick="submitLogin()">Go</button>
-    <button type="button" id="refreshbutton" onclick="submitRefresh()">Refresh</button>
-    <p id="statustext"></p>
+    <h2 id="overview">About budget-tracker</h2>
+    <p>Here are some words</p>
+    <h3 id="more">More Stuff</h3>
+    <p>Here are some other words</p>
   </div>
 </body>
 </html>

@@ -10,6 +10,7 @@
 	- Deploy sync_transactions to BudgetSyncTransactions
 	- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
 	- Take care of deleted transactions from plaid sync
+- Change login flow
 - Test login
 - Update sync_transactions to ingest Chase CSVs locally
 	- Update sync_transactions rules for category assignment

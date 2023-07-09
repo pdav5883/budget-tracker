@@ -24,19 +24,26 @@
   <script src="/scripts/menu.js"></script>
 </head>
 <body>
-  <h1>Budget</h1>
-  <a href="/login.html">Login</a>
-  <a href="/">Budget</a>
-  <a href="/transactions.html">Transactions</a>
-  <a href="/target.html">Target</a>
-  <label for="month">Month</label>
-  <input type="text" name="month" id="month">
-  <label for="category">Category</label>
-  <input type="text" name="category" id="category">
-  <button type="button" id="gobutton" onclick="fetchSingleBudget()">Go</button>
-  <p id="statustext"></p>
-  <h4>Spent:</h4>
-  <a style="font-size: 2rem" id="spentamount"></a>
-  <p class="tight">OF</p>
-  <p style="font-size: 2rem" id="targetamount"></p>
+<div class="navbar-spacer"></div>
+  <nav class="navbar">
+    <div id="navmenucontainer" class="container navcontainer">
+      <script>
+        document.getElementById("navmenucontainer").innerHTML = navmenu
+      </script>
+    </div>
+  </nav>
+  <div class="top container">
+    <h1>Budget</h1>
+    <label for="month">Month</label>
+    <input type="text" name="month" id="month">
+    <label for="category">Category</label>
+    <input type="text" name="category" id="category">
+    <button type="button" id="gobutton" onclick="fetchSingleBudget()">Go</button>
+    <p id="statustext"></p>
+    <h4>Spent:</h4>
+    <a style="font-size: 2rem" id="spentamount"></a>
+    <p class="tight">OF</p>
+    <p style="font-size: 2rem" id="targetamount"></p>
+  </div>
+</body>
 </html>
