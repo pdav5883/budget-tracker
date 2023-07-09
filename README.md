@@ -2,9 +2,8 @@
 
 ## TODO
 - Beautify frontend
+	- Month/Category dropdowns
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
-	- Add menu bar
-	- Add to BLR menu
 - Auto sync through plaid
 	- Function in sync_transactions to pull Amex from plaid
 	- Deploy sync_transactions to BudgetSyncTransactions
