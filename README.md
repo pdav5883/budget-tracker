@@ -2,7 +2,7 @@
 
 ## TODO
 - Beautify frontend
-	- Month/Category dropdowns
+	- Button colors
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
 - Auto sync through plaid
 	- Function in sync_transactions to pull Amex from plaid
@@ -10,17 +10,16 @@
 	- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
 	- Take care of deleted transactions from plaid sync
 - Change login flow
-- Test login
+	- Straight to login if no token
+	- Auto refresh and retry if expired idtoken
+- Test account for login to dummy table
 - Update sync_transactions to ingest Chase CSVs locally
 	- Update sync_transactions rules for category assignment
 - Allow sync_transactions from text/email
 - Usability Changes
 	- Update edit transactions to edit multiple entries with single put request
-	- Change transaction category to select from text input
 	- Add new filter option for date
 	- Add new filter option for just month
-	- Auto login page if no token
-	- Ensure auto refresh and retry if expired idtoken
 - Write up how to get plaid token info
 - Implement checked field in transaction, or remove
 
