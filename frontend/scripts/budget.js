@@ -1,17 +1,20 @@
 let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
 let default_category = "Groceries"
 
-window.onload = function() {
+window.addEventListener("load", function() {
   document.getElementById("spentamount").onclick = function () {
     const month = document.getElementById("month").value
     const category = document.getElementById("category").value
     window.location.href = "/transactions.html?month=" + month + "&category=" + category
   }
   fetchSingleBudgetDefault()
-}
+})
 
 function fetchSingleBudgetDefault() {
-  document.getElementById("month").value = new Date().toLocaleString("en-us",{month:"short", year: "2-digit"})
+  const m = new Date().toLocaleString("en-us",{month:"short", year: "2-digit"})
+  document.getElementById("month-select").value = m
+  document.getElementById("month").value = m
+  document.getElementById("category-select").value = default_category
   document.getElementById("category").value = default_category
 
   fetchSingleBudget()

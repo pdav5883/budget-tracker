@@ -19,6 +19,7 @@
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
   <script src="/scripts/amazon-cognito-identity.min.js"></script>
   <script src="/scripts/login.js"></script>
+  <script src="/scripts/dropdown.js"></script>
   <script src="/scripts/transactions.js"></script>
   <script src="/scripts/menu.js"></script>
 </head>
@@ -34,9 +35,14 @@
   <div class="top container">
     <h1>Transactions</h1>
     <label for="month">Month</label>
-    <input type="text" name="month" id="month">
+    <select name="month" id="month-select">
+    </select>
+    <input type="text" id="month">
     <label for="category">Category</label>
+    <select name="category" id="category-select">
+    </select>
     <input type="text" name="category" id="category">
+    <br>
     <button type="button" id="gobutton" onclick="fetchTransactions()">Go</button>
     <p id="statustext"></p>
     <button id="newbutton" onclick="newTransaction()">New</button>

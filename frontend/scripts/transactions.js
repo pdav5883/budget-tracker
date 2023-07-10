@@ -17,14 +17,16 @@ const columns = [["id", "ID", false, 0],
   		 ["category", "Category", true, 10],
   		 ["amount", "Amount", true, 6]]
 
-window.onload = fetchTransactionsIfRequested
+window.addEventListener("load", fetchTransactionsIfRequested)
 
 
 function fetchTransactionsIfRequested() {
   const params = new URLSearchParams(window.location.search)
 
   if (params.get("month") != null) {
+    document.getElementById("month-select").value = params.get("month")
     document.getElementById("month").value = params.get("month")
+    document.getElementById("category-select").value = params.get("category")
     document.getElementById("category").value = params.get("category")
     fetchTransactions()
   }
