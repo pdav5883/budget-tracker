@@ -83,3 +83,15 @@ Scan: description contains
 	- Publishes to budget-tracker-add-topic (max 10 transactions at a time)
 	- Triggers BudgetAddTransaction lambda
 	- Adds transactions to DynamoDB budget-tracker-transactions table
+
+## Plaid Layer
+- Ran into several issues getting plaid importing via lambda layer
+- From lambdas create layer dir structure with: mkdir -p plaid-layer/python/lib/python3.8/site-packages
+- Create a venv, activate(make sure version matches python3.X above
+- pip install plaid_python -t plaid-layer/python/lib/python3.8/site-packages
+- cd into site-packages and delete all dirs/files except: nulltype, plaid, plaid_python
+	- The reason to do this is that lambda python runtime already has installed packages that conflict with what pip will install from latest. urllib causes issues with ssl and ciphers.
+- cd plaid-layer
+- zip -r plaid-layer.zip *
+- Upload to lambda layer
+
