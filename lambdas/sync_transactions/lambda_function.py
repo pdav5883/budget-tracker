@@ -64,22 +64,39 @@ def publish_sns(add_transactions, delete_transactions):
     Only publish MAX_PER_SNS at a time
     """
     print("Publishing SNS to add {} transactions with id:".format(len(add_transactions)))
-    print([t["id"] for t in add_transactions])
+    add_blocks = create_sns_blocks(add_transactions)
+    
+    # need to do this for lambda logging -- if you try to write them all on one line its too much
+    for ab in add_blocks:
+        print([t["id"] for t in ab])
 
     print("Publishing SNS to delete {} transactions with id:".format(len(delete_transactions)))
-    print([t["id"] for t in delete_transactions])
+    delete_blocks = create_sns_blocks(delete_transactions)
+    for db in delete_blocks:
+        print([t["id"] for t in db])
     
-    block = []
 
-    for t in add_transactions:
+    for add_block in add_blocks:
+        sns.publish(TopicArn=add_topic_arn, Message=json.dumps(add_block))
+    
+    for delete_block in delete_blocks:
+        sns.publish(TopicArn=delete_topic_arn, Message=json.dumps(delete_block))
+
+
+def create_sns_blocks(transactions):
+    blocks = []
+    block = []
+    for t in transactions:
         block.append(t)
 
         if len(block) >= MAX_PER_SNS:
-            sns.publish(TopicArn=add_topic_arn, Message=json.dumps(block))
+            blocks.append(block)
             block = []
 
     if len(block):
-        sns.publish(TopicArn=topic_arn, Message=json.dumps(block))
+        blocks.append(block)
+
+    return blocks
 
 
 def get_plaid_amex():
@@ -90,6 +107,11 @@ def get_plaid_amex():
     plaid_secret = ssm.get_parameter(Name="plaid-secret-dev")["Parameter"]["Value"]
     plaid_access = ssm.get_parameter(Name="plaid-access-token-amex-dev")["Parameter"]["Value"]
     next_cursor = ssm.get_parameter(Name="plaid-next-cursor-amex-dev")["Parameter"]["Value"]
+
+    # necessary because SSM does not allow empty string as value, but plaid assumes that
+    # empty string is the initial cursor for account
+    if next_cursor == "null":
+        next_cursor = ""
 
     print("Configuring Plaid API access")
     host = plaid.Environment.Development
@@ -130,7 +152,7 @@ def get_plaid_amex():
     print(next_cursor)
     print("to")
     print(cursor)
-    # res = ssm.put_parameter(Name="plaid-next-cursor-amex-dev", Value=cursor, Overwrite=True)
+    res = ssm.put_parameter(Name="plaid-next-cursor-amex-dev", Value=cursor, Overwrite=True)
 
     return added, removed
 
@@ -143,7 +165,7 @@ def lambda_handler(event, context):
     if event == "amex-plaid":
         print("Synchronizing plaid Amex transactions with budget-tracker DB")
         raw_add, raw_delete = get_plaid_amex()
-        # sync_amex(raw_add, raw_delete)
+        sync_amex(raw_add, raw_delete)
 
     else:
         print("ERROR: Trigger event not recognized")
@@ -153,7 +175,7 @@ def lambda_handler(event, context):
 
 # Running locally assumes arg1 is type of file to sync, arg2 is file path
 if __name__ == "__main__":
-    print("Adding raw transactions of type {} at {}".format(sys.argv[1], sys.argv[2]))
+    print("Adding raw transactions of type {}".format(sys.argv[1]))
 
     if sys.argv[1] == "amex-local":
         with open(sys.argv[2], "r") as fptr:
@@ -167,4 +189,5 @@ if __name__ == "__main__":
 
         sync_amex(raw_transactions)
 
-
+    elif sys.argv[1] == "amex-plaid":
+        raw_add, raw_delete = get_plaid_amex()

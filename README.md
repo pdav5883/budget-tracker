@@ -4,11 +4,7 @@
 - Beautify frontend
 	- Button colors
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
-- Auto sync through plaid
-	- Function in sync_transactions to pull Amex from plaid
-	- Deploy sync_transactions to BudgetSyncTransactions
-	- Create CloudWatch event to run BudgetSyncTransactions for Amex on schedule
-	- Take care of deleted transactions from plaid sync
+	- Sort transactions table entries by date
 - Change login flow
 	- Straight to login if no token
 	- Auto refresh and retry if expired idtoken
@@ -62,6 +58,7 @@ Scan: description contains
 
 ## plaid
 - Strip down plaid quickstart frontend to take user to link page and then show access_token after successful login.
+- plaid uses cursor string (stored in SSM for implementation) to determine sync transactions. To start fresh, plaid assumes cursor is "", but that can't be stored in SSM so included logic on lambda side to store null in SSM and convert to "" in function
 
 ## AWS Backend
 - Table is stored in DynamoDB budget-tracker-transactions
@@ -93,5 +90,5 @@ Scan: description contains
 	- The reason to do this is that lambda python runtime already has installed packages that conflict with what pip will install from latest. urllib causes issues with ssl and ciphers.
 - cd plaid-layer
 - zip -r plaid-layer.zip *
-- Upload to lambda layer
+- Upload to lambda layer (v3)
 
