@@ -81,6 +81,9 @@ function fetchTransactions() {
 }
 
 function loadTable(data) {
+  // sort the data in place by date
+  data.sort((a, b) => (a["date"] > b["date"]) ? 1 : -1)
+
   tableUpdates = {}
   tableNew = []
 

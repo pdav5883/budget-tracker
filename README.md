@@ -4,12 +4,13 @@
 - Beautify frontend
 	- Button colors
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
-	- Sort transactions table entries by date
 - Change login flow
 	- Straight to login if no token
 	- Auto refresh and retry if expired idtoken
 - Test account for login to dummy table
 - Update sync_transactions to ingest Chase CSVs locally
+	- use uuid.uuid5(uuid.NAMESPACE_X500, concat(row vals)) for unique id
+	- don't worry about double row split across pulls, just take care of double rown in same pull
 	- Update sync_transactions rules for category assignment
 - Allow sync_transactions from text/email
 - Usability Changes
