@@ -2,6 +2,8 @@ import boto3
 import sys
 import json
 import datetime
+import csv
+import uuid
 
 import plaid
 from plaid.api import plaid_api
@@ -48,6 +50,33 @@ def sync_amex(raw_add_transactions, raw_delete_transactions=list()):
     delete_transactions = [{"id": rt["transaction_id"]} for rt in raw_delete_transactions]
     
     publish_sns(add_transactions, delete_transactions)
+
+
+def sync_chase(raw_transactions):
+    """
+    List of chase csv rows, build SNS message
+
+    Input is list of [Transaction Date (mm/dd/yyyy), Post Date, Descr, Category, Type, Amount (negative)]
+    """
+    transactions = []
+
+    for rt in raw_transactions:
+        t = {"id": str(uuid.uuid5(uuid.NAMESPACE_X500, " ".join(rt))),
+             "date": datetime.datetime.strptime(rt[0], "%m/%d/%Y").strftime("%Y-%m-%d"),
+             "account": "Chase 4251",
+             "checked": False,
+             "description": rt[2],
+             "amount": -float(rt[5])}
+
+        if rt[3] == "Groceries":
+            t["category"] = "Groceries"
+        else:
+            t["category"] = guess_category(t)
+
+        transactions.append(t)
+
+    print("Adding {} transactions to DB from chase-local".format(len(transactions)))
+    publish_sns(transactions, [])
 
 
 def guess_category(transaction):
@@ -189,5 +218,21 @@ if __name__ == "__main__":
 
         sync_amex(raw_transactions)
 
+    elif sys.argv[1] == "chase-local":
+        with open(sys.argv[2], "r") as fptr:
+            reader = csv.reader(fptr)
+
+            header = next(reader)
+            
+            raw_transactions = []
+
+            for row in reader:
+                raw_transactions.append(row)
+
+        sync_chase(raw_transactions)
+
     elif sys.argv[1] == "amex-plaid":
         raw_add, raw_delete = get_plaid_amex()
+        sync_amex(raw_add, raw_delete)
+
+
