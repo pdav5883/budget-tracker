@@ -24,6 +24,20 @@
   color: inherit;
   text-decoration: inherit; }
 
+.green-button {
+  /*background-color: #96fa6e;*/
+  background-color: #85ed79;
+}
+
+.blue-button {
+  /*background-color: #6eabfa;*/
+  background-color: #9ad1d4;
+}
+
+.orange-button {
+  /*background-color: #fae36e;*/
+  background-color: #f2c57c;
+}
 
 /* Custom Menu */
 #pagesPopover {
@@ -32,86 +46,6 @@
 
 #aboutPopover {
   left: -35%;
-}
-
-/* Tables
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-.score-table td,th {
-  text-align: center;
-}
-.score-table td {
-  border-left: 1px solid #E1E1E1;
-  border-right: 1px solid #E1E1E1;
-}
-.score-table th:first-child {
-  padding-left: 15px;
-}
-.score-table td:last-child,th:last-child {
-  padding-right: 15px;
-}
-.win-cell {
-  background-color: #7df04f;
-}
-.loss-cell {
-  background-color: #ed7864;
-}
-.score-cell {
-  background-color: #e6e6e6;
-  font-weight: bold;
-  font-size: 150%;
-}
-.bowl-cell {
-  font-weight: normal;
-  font-size: 90%;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  line-height: 140%; 
-}
-.bowl-span {
-  font-size: 100%;
-  font-weight: bold;
-}
-.date-span {
-  font-size: 75%;
-}
-.winner-span {
-  text-decoration: underline;
-  font-weight: bold
-}
-.submit-button {
-  background-color: #96fa6e;
-}
-.cat-select {
-  margin-bottom: 0;
-}
-.scratch-text {
-  width: 100px;
-  margin-bottom: 0;
-}
-
-input[type="radio"] {
-  height: 20px;
-  width: 20px;
-}
-
-.leader-table td {
-  font-size: 125%;
-  padding-top: 2px;
-  padding-bottom: 2px
-}
-
-.leader-header {
-  font-size: 125%; 
-}
-
-.num-cell {
-  text-align: center;
-  font-weight: bold;
-}
-
-super {
-  font-size: 75%;
-  vertical-align: super;
 }
 
 /* Navbar 

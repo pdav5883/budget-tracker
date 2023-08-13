@@ -2,7 +2,6 @@
 
 ## TODO
 - Beautify frontend
-	- Button colors
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
 - Change login flow
 	- Straight to login if no token
