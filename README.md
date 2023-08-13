@@ -1,7 +1,8 @@
 # budget-tracker
+Web app to track budget data over time
 
 ## TODO
-- Beautify frontend
+- Improve frontend
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
 - Test account for login to dummy table
 - Allow sync_transactions from text/email
@@ -12,7 +13,6 @@
 	- Add new filter option for account 
 - Write up how to get plaid token info
 - Write up budget-tracker about
-- Clear out info
 
 ## Data Model
 Transactions and Target Values are stored in the same table
@@ -86,3 +86,39 @@ Scan: description contains
 - zip -r plaid-layer.zip *
 - Upload to lambda layer (v3)
 
+## Plaid Notes
+Running plaid getting started demo app
+- Go to localhost:3000
+  - Client calls /api/create_link_token
+    - Server calls plaid api, returns a link token string to client
+- Click "Link Account" button
+  - Client initializes Link drop-in or Link website,
+    - Link does credentials, returns public_token
+  - Client calls /api/set_access_token
+    Server calls plaid api to exchange public_token for item_id and access_token. Saves these.
+- Click on the Auth Send Request example
+  - Client calls /api/auth
+    - Server calls plaid api /auth/get with access_token as argument, which it grabs from memory
+
+```
+import plaid
+from plaid.model.auth_get_request import AuthGetRequest
+
+configuration = plaid.Configuration(
+    host=host,
+    api_key={
+        'clientId': PLAID_CLIENT_ID,
+        'secret': PLAID_SECRET,
+        'plaidVersion': '2020-09-14'
+    }
+)
+
+api_client = plaid.ApiClient(configuration)
+client = plaid_api.PlaidApi(api_client)
+
+request = AuthGetRequest(
+            access_token=access_token
+        )
+       response = client.auth_get(request)
+       pretty_print_response(response.to_dict())
+```
