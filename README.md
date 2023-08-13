@@ -2,7 +2,7 @@
 Web app to track budget data over time
 
 ## TODO
-- Improve frontend
+- Improve frontend 
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
 - Test account for login to dummy table
 - Allow sync_transactions from text/email
