@@ -17,10 +17,6 @@
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <!-- JQuery -->
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-  <script src="/scripts/amazon-cognito-identity.min.js"></script>
-  <script src="/scripts/login.js"></script>
-  <script src="/scripts/target.js"></script>
-  <script src="/scripts/budget.js"></script>
   <script src="/scripts/menu.js"></script>
 </head>
 <body>
@@ -32,11 +28,58 @@
       </script>
     </div>
   </nav>
-  <div class="top container">
-    <h2 id="overview">About budget-tracker</h2>
-    <p>Here are some words</p>
-    <h3 id="more">More Stuff</h3>
-    <p>Here are some other words</p>
+  <div class="smalltop container">
+    <h2 id="overview" class="smallbottom">About budget-tracker</h2>
+    <p><em>budget-tracker</em> is a personal project to build a small web app for tracking monthly expenses across categories in close to real-time.</p>
+    
+    <p class="nextpar">I've experimented with web-based budget tools like Mint to keep track of month-to-month finances, but over the years have settled into a custom excel system that does exactly what I want without sharing my data with third parties like many of the "free" web tools out there. </p>
+
+    <p class="nextpar">The major shortcoming of my system is that I only "see" my budget at the end of every month when I pull all the data together, so can't keep track of whether we're over or under budget for the month. I wanted to address that lack of real-time information by building my own mini-Mint for my own purposes, and learning some new concepts and parts of AWS in the process.
+    
+    <p class="nextpar">There are four pages in <em>budget-tracker</em>:</p>
+    <ul class="nextpar">
+      <li><strong>Budget</strong>: See the total spending for a month/category combo compared to target budget</li>
+      <li><strong>Transactions</strong>: See/edit all of the transactions for a month/category combo</li>
+      <li><strong>Target</strong>: Edit the target budget for a month/category combo</li>
+      <li><strong>Login</strong>: Enter credentials to access the above aboves</li>
+    </ul>
+
+    <p class="center nextpar">See the code <a href="https://github.com/pdav5883/budget-tracker">here</a>!
+    
+    <h3 id="ingest" class="smallbottom">How it Works: Getting Data In</h3>
+
+    <p>There are two ways that transactions make their way into budget-tracker: manually by downloading transaction history files from the credit card sites and then re-uploading; and automatically using a platform called <a href="https://plaid.com/">Plaid</a>. Plaid exposes an interface that allows applications to connect to users' financial institutions (e.g. banks, credit cards) and securely pull data like credit card transactions. Without going into the details of how Plaid works (see <a href"https://plaid.com/docs/quickstart/">here</a>), I have an AWS Lambda function called <em>BudgetSynchronizeTransactions</em> that runs every 24 hours and uses Plaid to add all new transactions to the budget-tracker database.</p>
+
+    <p class="center nextpar">See where the magic happens <a href="https://github.com/pdav5883/budget-tracker/blob/develop/lambdas/sync_transactions/lambda_function.py">here</a></p>
+    
+
+    <h3 id="data" class="smallbottom">How it Works: Storing Transactions</h3>
+
+    <p>Storing data is nothing new here on Bear Loves Rocks, but in this iteration I went with a non-relational, key-value database that I hadn't used before. The rationale was simple, the only database service in the AWS Free Tier is <a href="https://aws.amazon.com/dynamodb">DynamoDB</a>, which only uses key-value tables. These NoSQL databases are built for massive scale, which I am definitely not using with ~100 transactions in the database for each month. I did find that I had to be more mindful of what types of queries I would need (e.g. give me all the transactions in category X for month Y) and build the table with those in mind.</p>
+
+    <p class="nextpar">Each entry in the table consists of several text fields: an ID, a description, a category, and an amount. Basically rows in a spreadsheet. As transactions are added with either the manual or automatic ingest methods above, they are converted to those text fields and added to the DynamoDB table where there can be retrieved and edited by the budget-tracker pages.</p>
+
+   
+    <h3 id="backend" class="smallbottom">How it Works: Backend</h3>
+    
+    <p>The DynamoDB service itself has a robust interface to query and modify the transaction table, however these functions are not trivial to expose to something like a webpage. To enable these connections, and stay in the AWS Free Tier, I used four Lambda Functions executing Python code: one each for querying, adding, editing, and deleting transactions. All of these Lambdas make heavy use of the AWS library <em>boto3</em>, which makes it relatively easy to connect to other parts of AWS like DynamoDB. These four lambdas are the only way to interact with the transactions database, so access to the data is relatively easy to control.</p>
+
+    <p class="nextpar">All four lambdas are connected to API Gateway, which allows HTTP requests to trigger lambda execution. For example, when you use the Transactions page on the budget-tracker site to get all Groceries transactions in August 2023, what the page is actually doing is "visiting" https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query?month=Aug%2023&category=Groceries to get the data.</p>
+
+    <p class="nextpar">Finally, the add and delete lambdas have a special secondary trigger in addition to API Gateway. They subscribe to an AWS Simple Notification Service (SNS) topic that contains transactions to add or delete. This SNS pathway is used by the Synchronize Lambda (see above) to modify the database using the manual or automatic ingest process.
+    
+    <p class="center nextpar">See where the magic happens for the <em>add</em> interface <a href="https://github.com/pdav5883/budget-tracker/blob/develop/lambdas/add_transaction/lambda_function.py">here</a></p>
+
+
+    <h3 id="access" class="smallbottom">How it Works: Access Controls</h3>
+
+    <p>Unlike my other BLR projects, this one contains some information that I wouldn't necessarily like to make publically available -- my family's credit card transactions. Not to worry, AWS contains the tools to implement access control to other AWS resources, and they are in the free tier. The service used here is AWS Cognito, which allows you to create a  "user pool" with specific usernames and passwords. Membership in this user pool can then be used as an authentication step for the four lambdas that touch the transactions database.</p>
+
+    <p class="nextpar">In order to prove that you are an authorized user, you visit the budget-tracker Login page, enter a valid username and password, and are given a token that your browser stores. Whenever you try to query, add, or edit transactions your browser sends this token along with your request, and AWS checks that it is a valid token. If it is valid you will get your data to populate your page, and if not AWS will not execute the function and return an error instead.</p>
+
+    <p class="nextpar">A future TO-DO item is to build a sandbox login with with dummy data so the clamoring masses can play with the site themselves, but that has a few of its own challenges I have to work through first.</p>
+    
+    <p class="center nextpar">See where the magic happens <a href="https://github.com/pdav5883/budget-tracker/blob/develop/frontend/scripts/login.js">here</a></p>
   </div>
 </body>
 </html>

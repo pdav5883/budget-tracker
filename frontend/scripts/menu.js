@@ -57,7 +57,16 @@ var navmenu =
           '<a class="popover-link" href="/about.html#">Overview</a>' +
         '</li>' +
         '<li class="popover-item">' +
-          '<a class="popover-link" href="/about.html#more">More</a>' +
+          '<a class="popover-link" href="/about.html#ingest">Ingest</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#data">Database</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#backend">Backend</a>' +
+        '</li>' +
+        '<li class="popover-item">' +
+          '<a class="popover-link" href="/about.html#access">Access</a>' +
         '</li>' +
         '<li class="popover-item">' +
           '<a class="popover-link" href="https://github.com/pdav5883/budget-tracker">Github</a>' +

@@ -1,6 +1,9 @@
 .top {
   margin-top: 5rem; }
 
+.smalltop {
+  margin-top: 3rem; }
+
 .container {
   max-width: 800px; }
 
@@ -8,7 +11,16 @@
   max-width: 400px; }
 
 .center {
-  margin: auto; }
+  text-align: center; }
+
+.bigbottom {
+  margin-bottom: 4rem; }
+
+.smallbottom {
+  margin-bottom: 1rem; }
+
+.nextpar {
+  margin-top: -1em; }
 
 .navcontainer {
   margin: 0 0;
