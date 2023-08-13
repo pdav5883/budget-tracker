@@ -3,6 +3,8 @@ const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/pro
 const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
 const api_delete_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/delete"
 
+var retryFetch = true
+
 // keeps track of transaction updates and new items to send to DB
 var tableUpdates = null // object with id as key
 var tableNew = null     // array of new row elements
@@ -65,12 +67,26 @@ function fetchTransactions() {
     error: function(err) {
       if (err.status == "401") {
 	if (localStorage.getItem("refreshtoken") != null) {
-	  statustext.innerHTML = "Refreshing Login Credentials..."
-	  submitRefresh() // from login.js
-	  statustext.innerHTML += "Try Again"
+
+	  // try again after refresh automatically just once
+	  if (retryFetch) {
+	    retryFetch = false
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+
+	    // wait 1 sec, then try again -- super inelegant
+	    setTimeout(function() { fetchTransactions() }, 500)
+	  }
+
+	  else {
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+	    statustext.innerHTML += "Try Again"
+	  }
 	}
 	else {
 	  statustext.innerHTML = "Error: Login Required"
+	  window.location.replace("/login.html")
 	}
       }
       else {

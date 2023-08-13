@@ -1,5 +1,7 @@
-let api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
-let default_category = "Groceries"
+const api_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/query"
+const default_category = "Groceries"
+
+var retryFetch = true
 
 window.addEventListener("load", function() {
   document.getElementById("spentamount").onclick = function () {
@@ -70,12 +72,26 @@ function fetchSingleBudget() {
 	spentAmount.innerHTML = ""
 	targetAmount.innerHTML = ""
 	if (localStorage.getItem("refreshtoken") != null) {
-	  statustext.innerHTML = "Refreshing Login Credentials..."
-	  submitRefresh() // from login.js
-	  statustext.innerHTML += "Try Again"
+	  
+	  // try again after refresh automatically just once
+	  if (retryFetch) {
+	    retryFetch = false
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+
+	    // wait 1 sec, then try again -- super inelegant
+	    setTimeout(function() { fetchSingleBudget() }, 500)
+	  }
+
+	  else {
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+	    statustext.innerHTML += "Try Again"
+	  }
 	}
 	else {
 	  statustext.innerHTML = "Error: Login Required"
+	  window.location.replace("/login.html")
 	}
       }
       else {

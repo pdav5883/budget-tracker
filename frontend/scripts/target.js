@@ -2,7 +2,6 @@ const api_query_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/pr
 const api_edit_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/edit"
 const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod/add"
 
-
 // Probably not the most elegant way, but ajax is async so can't
 // call fetchTarget from within saveTarget
 // 
@@ -14,6 +13,8 @@ const api_add_url = "https://wsrxbgjqa1.execute-api.us-east-1.amazonaws.com/prod
 // then saveTarget is run. If saveTarget gets a null then it hits
 // add api, if it gets a value it hits edit api.
 
+// once per page load, retry fetch if login token needs to be refreshed
+var retryFetch = true
 
 function fetchTarget(callback) {
   var statustext = document.getElementById("statustext")
@@ -62,12 +63,26 @@ function fetchTarget(callback) {
     error: function(err) {
       if (err.status == "401") {
 	if (localStorage.getItem("refreshtoken") != null) {
-	  statustext.innerHTML = "Refreshing Login Credentials..."
-	  submitRefresh() // from login.js
-	  statustext.innerHTML += "Try Again"
+
+	  // try again after refresh automatically just once
+	  if (retryFetch) {
+	    retryFetch = false
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+
+	    // wait 1 sec, then try again -- super inelegant
+	    setTimeout(function() { fetchTarget(callback) }, 500)
+	  }
+
+	  else {
+	    statustext.innerHTML = "Refreshing Login Credentials..."
+	    submitRefresh() // from login.js
+	    statustext.innerHTML += "Try Again"
+	  }
 	}
 	else {
 	  statustext.innerHTML = "Error: Login Required"
+	  window.location.replace("/login.html")
 	}
       }
       else {

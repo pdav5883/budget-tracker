@@ -3,18 +3,16 @@
 ## TODO
 - Beautify frontend
 	- Modify viz for budget shown (x of y spent), (X % through budget, Y% through month)
-- Change login flow
-	- Straight to login if no token
-	- Auto refresh and retry if expired idtoken
 - Test account for login to dummy table
 - Allow sync_transactions from text/email
 - Usability Changes
 	- Update edit transactions to edit multiple entries with single put request
 	- Add new filter option for date
 	- Add new filter option for just month
+	- Add new filter option for account 
 - Write up how to get plaid token info
-- Implement checked field in transaction, or remove
-
+- Write up budget-tracker about
+- Clear out info
 
 ## Data Model
 Transactions and Target Values are stored in the same table
